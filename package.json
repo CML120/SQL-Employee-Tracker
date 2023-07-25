@@ -1,0 +1,25 @@
+{
+  "name": "employee-tracker",
+  "version": "1.0.0",
+  "description": "## Table of Contents   - [Description](#project-description)   - [Installation](#installation)   - [Usage](#usage)   - [Contribution](#contribution)   - [Testing](#testing)   - [Contact](#contact)",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CML120/SQL-Employee-Tracker.git"
+  },
+  "keywords": [],
+  "author": "Chee Lor",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/CML120/SQL-Employee-Tracker/issues"
+  },
+  "homepage": "https://github.com/CML120/SQL-Employee-Tracker#readme",
+  "dependencies": {
+    "inquirer": "^8.2.4",
+    "mysql2": "^3.5.2"
+  }
+}
