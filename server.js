@@ -37,7 +37,7 @@ function employeeManagerPrompt() {
                     "Quit",
                 ],
             },
-        )        .then(function (choice) {
+        ).then(function (choice) {
             switch (choice.select) {
                 case "View All Employees":
                     viewAllEmployees();
@@ -90,16 +90,152 @@ LEFT JOIN
         console.table(res);
         employeeManagerPrompt();
     })
-    
+
 };
 
 function addEmployee() {
-    
-};
+    const rolesQuery = "SELECT id, title FROM role";
+    const managersQuery = "SELECT id, first_name, last_name FROM employee WHERE manager_id IS NULL";
+
+    Promise.all([
+        new Promise((resolve, reject) => {
+            connection.query(rolesQuery, (err, roles) => {
+                if (err) reject(err);
+                else resolve(roles);
+            });
+        }),
+        new Promise((resolve, reject) => {
+            connection.query(managersQuery, (err, managers) => {
+                if (err) reject(err);
+                else resolve(managers);
+            });
+        }),
+    ])
+    .then(([roles, managers]) => {
+        const roleChoices = roles.map((role) => ({
+            name: role.title,
+            value: role.id,
+        }));
+        const managerChoices = managers.map((manager) => ({
+            name: `${manager.first_name} ${manager.last_name}`,
+            value: manager.id,
+        }));
+
+        inquirer
+            .prompt([
+                {
+                    type: "input",
+                    name: "first_name",
+                    message: "What is the employee's first name:",
+                },
+                {
+                    type: "input",
+                    name: "last_name",
+                    message: "What is the employee's last name:",
+                },
+                {
+                    type: "list",
+                    name: "role_id",
+                    message: "Select the role for this employee:",
+                    choices: roleChoices,
+                },
+                {
+                    type: "list", 
+                    name: "manager_id",
+                    message: "Select the manager for this employee (leave blank if none):",
+                    choices: [{ name: "None", value: null }, ...managerChoices],
+                },
+            ])
+            .then((answers) => {
+                const { first_name, last_name, role_id, manager_id } = answers;
+                const query = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`;
+                connection.query(query, [first_name, last_name, role_id, manager_id], (err, res) => {
+                    if (err) throw err;
+                    console.log(`${res.affectedRows} employee added!\n`);
+                    employeeManagerPrompt();
+                });
+            });
+    })
+    .catch((err) => {
+        console.error("Error fetching data from the database:", err);
+        employeeManagerPrompt();
+    });
+}
+
 
 function updateEmployeeRole() {
+    const employeesQuery = `
+        SELECT 
+            id,
+            CONCAT(first_name, ' ', last_name) AS employee_name
+        FROM 
+            employee
+    `;
 
-};
+    const rolesQuery = `
+        SELECT 
+            id,
+            title
+        FROM 
+            role
+    `;
+
+    Promise.all([
+        new Promise((resolve, reject) => {
+            connection.query(employeesQuery, (err, employees) => {
+                if (err) reject(err);
+                else resolve(employees);
+            });
+        }),
+        new Promise((resolve, reject) => {
+            connection.query(rolesQuery, (err, roles) => {
+                if (err) reject(err);
+                else resolve(roles);
+            });
+        }),
+    ])
+    .then(([employees, roles]) => {
+        const employeeChoices = employees.map((employee) => ({
+            name: employee.employee_name,
+            value: employee.id,
+        }));
+
+        const roleChoices = roles.map((role) => ({
+            name: role.title,
+            value: role.id,
+        }));
+
+        inquirer
+            .prompt([
+                {
+                    type: "list",
+                    name: "employee_id",
+                    message: "Select the employee to update:",
+                    choices: employeeChoices,
+                },
+                {
+                    type: "list",
+                    name: "new_role_id",
+                    message: "Select the new role for the employee:",
+                    choices: roleChoices,
+                },
+            ])
+            .then((answers) => {
+                const { employee_id, new_role_id } = answers;
+                const query = "UPDATE employee SET role_id = ? WHERE id = ?";
+                connection.query(query, [new_role_id, employee_id], (err, res) => {
+                    if (err) throw err;
+                    console.log(`${res.affectedRows} employee role updated!\n`);
+                    employeeManagerPrompt();
+                });
+            });
+    })
+    .catch((err) => {
+        console.error("Error fetching data from the database:", err);
+        employeeManagerPrompt();
+    });
+}
+
 function viewAllRoles() {
     const query = `
         SELECT
@@ -119,9 +255,11 @@ function viewAllRoles() {
         employeeManagerPrompt();
     });
 };
+
 function addRole() {
 
 };
+
 function viewAllDepartments() {
     const query = `
         SELECT
@@ -137,6 +275,7 @@ function viewAllDepartments() {
         employeeManagerPrompt();
     });
 };
+
 function addDepartment() {
 
 };
@@ -144,9 +283,29 @@ function addDepartment() {
 function quitProgram() {
     connection.end();
     process.exit();
-  }
+}
 
-employeeManagerPrompt();
+function init() {
+    console.log(`
+                                       
+ _____           _                 
+ |   __|_____ ___| |___ _ _ ___ ___ 
+ |   __|     | . | | . | | | -_| -_|
+ |_____|_|_|_|  _|_|___|_  |___|___|
+             |_|       |___|
+                               
+             _____             _           
+             |_   _|___ ___ ___| |_ ___ ___ 
+               | | |  _| .'|  _| '_| -_|  _|
+               |_| |_| |__,|___|_,_|___|_|
+             
+             
+`);
+
+    employeeManagerPrompt();
+}
+
+init();
 
 
 
