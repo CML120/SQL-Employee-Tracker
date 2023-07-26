@@ -286,7 +286,13 @@ function addRole() {
                 {
                     type: "input",
                     name: "role_salary",
-                    message: "Enter the salary for the new role:",
+                    validate: function (input) {
+                        const salary = parseFloat(input);
+                        if (isNaN(salary) || salary <= 0) {
+                            return "Please enter a valid salary greater than 0.";
+                        }
+                        return true;
+                    }
                 },
                 {
                     type: "list", 
