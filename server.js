@@ -274,6 +274,7 @@ function addRole() {
             name: department.name,
             value: department.id,
         }));
+        departmentChoices.push({ name: "Add a new department", value: "add_new_department" });
 
         inquirer
             .prompt([
@@ -286,16 +287,9 @@ function addRole() {
                     type: "input",
                     name: "role_salary",
                     message: "Enter the salary for the new role:",
-                    validate: function (input) {
-                        const salary = parseFloat(input);
-                        if (isNaN(salary) || salary <= 0) {
-                            return "Please enter a valid (numeric) salary greater than 0.";
-                        }
-                        return true;
-                    },
                 },
                 {
-                    type: "list",
+                    type: "list", 
                     name: "department_id",
                     message: "Select the department for the new role:",
                     choices: departmentChoices,
@@ -303,12 +297,41 @@ function addRole() {
             ])
             .then((answers) => {
                 const { role_title, role_salary, department_id } = answers;
-                const query = "INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)";
-                connection.query(query, [role_title, role_salary, department_id], (err, res) => {
-                    if (err) throw err;
-                    console.log(`${res.affectedRows} role added!\n`);
-                    employeeManagerPrompt();
-                });
+
+                if (department_id === "add_new_department") {
+                    inquirer
+                        .prompt([
+                            {
+                                type: "input",
+                                name: "department_name",
+                                message: "Enter the name of the new department:",
+                            },
+                        ])
+                        .then((deptAnswer) => {
+                            const { department_name } = deptAnswer;
+                            const insertDepartmentQuery = "INSERT INTO department (name) VALUES (?)";
+                            connection.query(insertDepartmentQuery, [department_name], (err, res) => {
+                                if (err) throw err;
+                                console.log(`${res.affectedRows} department added!\n`);
+
+                                const newDepartmentId = res.insertId;
+
+                                const insertRoleQuery = "INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)";
+                                connection.query(insertRoleQuery, [role_title, role_salary, newDepartmentId], (err, roleRes) => {
+                                    if (err) throw err;
+                                    console.log(`${roleRes.affectedRows} role added!\n`);
+                                    employeeManagerPrompt();
+                                });
+                            });
+                        });
+                } else {
+                    const insertRoleQuery = "INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)";
+                    connection.query(insertRoleQuery, [role_title, role_salary, department_id], (err, res) => {
+                        if (err) throw err;
+                        console.log(`${res.affectedRows} role added!\n`);
+                        employeeManagerPrompt();
+                    });
+                }
             });
     });
 }
