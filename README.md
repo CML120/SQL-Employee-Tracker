@@ -2,17 +2,18 @@
   
   # SQL: Employee Tracker
 
+![Alt text](image-1.png)
+
   ## Table of Contents
   - [Description](#project-description)
   - [Installation](#installation)
   - [Usage](#usage)
-  - [Contribution](#contribution)
-  - [Testing](#testing)
   - [Contact](#contact)
 
 
   ## Project Description
-  This project creates a content management system using node.js and sql 
+  This project creates a content management system using node.js and MySQL  
+  It allows the user to view, add to, or modify an employee database.
 
   ## User Story
 
@@ -50,22 +51,14 @@ THEN I am prompted to select an employee to update and their new role and this i
   [![Generic badge](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/.)
   
    
-
-  
   ## Installation 
-  install instructions
-
+  Clone the repo, then open the project in VS Code  
+  Open the project in the terminal and use 'npm install' to install all dependencies
 
   ## Usage 
-  usage instructions
-
-
-  ## Contribution
-  contribution instructions
-
-
-  ## Testing
-  testing instructions
+  In the terminal use 'npm start' to start the program  
+  Use the command line options to choose the desired functions of the Employee Tracker application.  
+  Follow the prompts and enter information as needed.  
 
   
   ## Contact
