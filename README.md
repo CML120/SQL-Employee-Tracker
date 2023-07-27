@@ -46,7 +46,6 @@ THEN I am prompted to select an employee to update and their new role and this i
 ```
   
   ### License 
-  MIT
   
   [![Generic badge](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/.)
   
